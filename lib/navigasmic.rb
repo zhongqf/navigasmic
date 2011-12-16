@@ -1,6 +1,7 @@
 # coding: utf-8
 require 'builders/html_builder'
 require 'builders/xml_builder'
+require 'builders/bootstrap_builder'
 
 module Navigasmic #:nodoc:
 
@@ -48,6 +49,19 @@ module Navigasmic #:nodoc:
     def add_html_class(classnames, classname)
       out = (classnames.is_a?(String) ? classnames.split(' ') : []) << classname
       out.join(' ')
+    end
+    
+
+    def method_missing(method_sym, *arguments, &block)
+      if method_sym.to_s =~ /^semantic_(.*?)_navigation$/
+        builder_str = "/navigasmic/#{$1}_navigation_builder"
+        name = arguments.shift
+        options = arguments.extract_options!
+        options[:builder] = builder_str.camelize.constantize
+        semantic_navigation(name, options, &block)
+      else
+        super
+      end
     end
 
   end
